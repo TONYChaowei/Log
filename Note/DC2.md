@@ -11,43 +11,7 @@
 **靶机地址**
 - https://www.vulnhub.com/entry/dc-2,311/
 
-**Description**
 
-Much like DC-1, DC-2 is another purposely built vulnerable lab for the purpose of gaining experience in the world of penetration testing.
-
-As with the original DC-1, it's designed with beginners in mind.
-
-Linux skills and familiarity with the Linux command line are a must, as is some experience with basic penetration testing tools.
-
-Just like with DC-1, there are five flags including the final flag. 五个flag
-
-And again, just like with DC-1, the flags are important for beginners, but not so important for those who have experience.
-
-In short, the only flag that really counts, is the final flag.
-
-For beginners, Google is your friend. Well, apart from all the privacy concerns etc etc.
-
-I haven't explored all the ways to achieve root, as I scrapped the previous version I had been working on, and started completely fresh apart from the base OS install.
-
-**Technical Information**
-
-DC-2 is a VirtualBox VM built on Debian 32 bit, so there should be no issues running it on most PCs.
-
-While I haven't tested it within a VMware environment, it should also work.
-
-It is currently configured for Bridged Networking, however, this can be changed to suit your requirements. Networking is configured for DHCP.
-
-Installation is simple - download it, unzip it, and then import it into VirtualBox and away you go.
-
-Please note that you will need to set the hosts file on your pentesting device to something like:
-
-`192.168.0.145 dc-2`
-
-Obviously, replace 192.168.0.145 with the actual IP address of DC-2.
-
-It will make life a whole lot simpler (and a certain CMS may not work without it).
-
-If you're not sure how to do this, instructions are here.
 
 **知识点**
 - 字典生成工具 cewl (flag2)
@@ -59,8 +23,8 @@ If you're not sure how to do this, instructions are here.
 
 `环境仅供参考`
 
-- VMware® Workstation 15 Pro - 15.0.0 build-10134415
-- kali : NAT 模式,192.168.141.134
+- VMware® Workstation 16 Pro
+- kali : NAT 模式, 
 - 靶机 : NAT 模式
 
 ---
@@ -72,19 +36,26 @@ If you're not sure how to do this, instructions are here.
 语法 `nmap -sP <网段>/24`
 
 ```bash
-nmap -sP 192.168.141.0/24
+nmap -sP 192.168.197.0/24
 ```
+![sniffing](/assets/sniffing_7nffmoxzo.png)
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/1.png)
 
-排除法,去掉自己、宿主机、网关, `192.168.141.136` 就是目标了
+排除法,去掉自己、宿主机、网关, `192.168.197.146` 就是目标了
 
 顺便扫一下端口
 ```bash
-nmap -T5 -A -v -p- 192.168.141.136
-```
+nmap -T5 -A -v -p- 192.168.197.146
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/3.png)
+    -T5: 指定扫描速度为最快。T5是Nmap的最高速度级别，它表示使用最激 进的扫描技术和最小的延迟。
+    -A: 启用操作系统检测、版本检测、脚本扫描和跟踪路径。
+    -v: 启用详细输出模式，提供更多的扫描信息。
+    -p-: 指定扫描所有的端口，从1到65535之间的所有端口。
+    192.168.197.146: 扫描目标的IP地址
+
+这个命令的目的是对指定的IP地址范围进行广泛的扫描，包括所有的端口，并尝试识别目标主机的操作系统和开放的服务版本。这种扫描可能会对网络产生一定程度的负载，因此在进行此类活动时请确保您有权利执行这样的操作，并且不会对网络造成不良影响
+```
+![sniffing2](/assets/sniffing2.png)
 
 可以看到,开放了 web 和 ssh 服务
 
@@ -92,7 +63,11 @@ nmap -T5 -A -v -p- 192.168.141.136
 
 这里的 kali 进行攻击,修改步骤如下
 ```bash
-echo "192.168.141.136 dc-2" >> /etc/hosts
+echo "192.168.197.146 dc-2" >> /etc/hosts
+```
+Windows环境修改host
+```
+explorer C:\Windows\System32\drivers\etc\
 ```
 
 然后 web 访问,就可以看到 flag1
@@ -199,7 +174,7 @@ Password : parturient
 
 直接登录
 ```bash
-ssh tom@192.168.141.136 -p 7744
+ssh tom@192.168.197.146 -p 7744
 ```
 
 ![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/9.png)

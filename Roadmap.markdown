@@ -125,7 +125,8 @@
     - [IDOR](./1earn/Security/RedTeam/Web安全/IDOR.md)
 
 - 靶场 - 如果有空闲时间可以打打靶场练习
-    - [靶场](https://github.com/No-Github/1earn/tree/master/1earn/Security/RedTeam/Web%E5%AE%89%E5%85%A8/%E9%9D%B6%E5%9C%BA)
+    - [靶场](./1earn/Security/RedTeam/Web安全/靶场/DVWA-WalkThrough.md)
+    
 
 ## web进阶
 

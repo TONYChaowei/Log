@@ -1664,6 +1664,7 @@ systemctl stop firewalld
   在 openvpn 的安装目录下,有个 config 目录,将服务器上的 user.ovpn,放在该目录下,运行 OpenVPN GUI,右键 whsir 连接 connect
 
   **Source & Reference**
+  
   - [通过 docker 搭建 openvpn](https://blog.whsir.com/post-2809.html)
 
 ---
