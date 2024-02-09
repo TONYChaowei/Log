@@ -175,7 +175,7 @@ flag 提示,如果 wordpress 打不下来,就得换一个入口
 wpscan --url http://dc-2/ --api-token 这边填你的APIToken
 ```
 
-![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC2/7.png)
+![](../../../../../../Note/assets/DC-2/wpscan.png)
 
 看了下,大部分需要认证,并且都是 XSS 之类的,靶机这环境根本没用,有一个 WordPress 3.7-5.0 (except 4.9.9) - Authenticated Code Execution 可以试一试,反正也有账号
 
